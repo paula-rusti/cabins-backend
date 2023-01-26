@@ -1,0 +1,5 @@
+fastapi
+sqlmodel
+uvicorn
+alembic
+pydantic[email]
