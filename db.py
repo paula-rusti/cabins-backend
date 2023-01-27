@@ -13,6 +13,7 @@ url = "postgresql://{0}:{1}@{2}:{3}/{4}".format(
     user, password, host, port, database
 )
 
+
 @lru_cache()
 def get_engine():
     engine = create_engine(url, echo=True)

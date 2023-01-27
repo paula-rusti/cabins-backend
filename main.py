@@ -1,16 +1,16 @@
-import datetime
-
 import uvicorn
 from fastapi import FastAPI
-from db import get_db_session
-from models.cabins import User, Role, Cabin
+
+from scripts import read_data
 
 app = FastAPI(docs_url="/")
 
 
+@app.get("/cabins")
+def get_cabins():
+    cabins = read_data.get_cabins()
+    return cabins
+
 
 if __name__ == '__main__':
-    # uvicorn.run('main:app', host="localhost", port=8000, reload=True)
-    # add_dummy_user()
-    # add a cabin to db
-    get_db_session().add(Cabin(0, ))
+    uvicorn.run('main:app', host="localhost", port=8000, reload=True)
