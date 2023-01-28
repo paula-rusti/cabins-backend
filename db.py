@@ -21,7 +21,6 @@ def get_engine():
     return engine
 
 
-@lru_cache()
 def get_db_session():
     engine = get_engine()
     session = Session(bind=engine)
