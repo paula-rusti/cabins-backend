@@ -20,8 +20,11 @@ def get_user():
 def get_cabins():
     session = get_db_session()
     statement = select(Cabin)   # select * from cabins
-    cabins = session.execute(statement).scalars().all()
-    return cabins
+    cabins = session.execute(statement)
+    cabins_list = []
+    for c in cabins:
+        cabins_list.append(c[0])
+    return cabins_list
 
 
 if __name__ == '__main__':

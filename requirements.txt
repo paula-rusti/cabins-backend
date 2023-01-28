@@ -1,5 +1,8 @@
-fastapi
-sqlmodel
-uvicorn
+fastapi~=0.89.1
+fastapi-pagination
+sqlmodel~=0.0.8
+uvicorn~=0.20.0
 alembic
 pydantic[email]
+SQLAlchemy~=1.4.41
+starlette~=0.22.0

@@ -2,7 +2,8 @@ from datetime import datetime
 from enum import Enum
 from typing import List
 
-from sqlmodel import SQLModel
+from sqlalchemy import ARRAY, String, Column
+from sqlmodel import SQLModel, Field
 
 
 class Facility:
@@ -20,8 +21,8 @@ class CabinBase(SQLModel):
     price: float
     location: str
     description: str
-    photos: List[str]
-    facilities: List[str]
+    photos: List[str] = Field(default=None, sa_column=Column(ARRAY(String())))
+    facilities: List[str] = Field(default=None, sa_column=Column(ARRAY(String())))
 
 
 class UserBase(SQLModel):

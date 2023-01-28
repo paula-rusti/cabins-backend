@@ -21,12 +21,12 @@ def add_dummy_user():
     session.commit()
 
 
-def add_cabin():
+def add_cabin(cabin_name: str):
     session = get_db_session()
     session.add(
         Cabin(
             user_id=0,
-            name="Cabana1",
+            name=cabin_name,
             price=100,
             location="Arad",
             description="description",
@@ -42,5 +42,7 @@ def add_cabin():
 
 
 if __name__ == "__main__":
+    pass
     # add_dummy_user()
-    add_cabin()
+    # for name in ["Cabana5", "Cabana2", "Cabana3", "Cabana4"]:
+    #     add_cabin(name)
