@@ -1,3 +1,5 @@
+from typing import Optional
+
 import uvicorn
 from fastapi import FastAPI, Depends
 from fastapi.encoders import jsonable_encoder
@@ -27,10 +29,13 @@ def cabins_repository():
 
 
 @app.get("/cabins", response_model=Page[CabinBase])
-def get_cabins(cabins_repo: CabinsRepository = Depends(cabins_repository)):
+def get_cabins(location: Optional[str] = None, cabins_repo: CabinsRepository = Depends(cabins_repository)):
     # TODO: make query using skip(offset) and limit instead of select *
-    # cabins_rows = read_data.get_cabins()
-    cabins_rows = cabins_repo.get_all()
+    cabins_rows = []
+    if not location:
+        cabins_rows = cabins_repo.get_all()
+    else:
+        cabins_rows = cabins_repo.get(reference=location)
     cabins = [
         CabinBase(
             name=cabin.name,

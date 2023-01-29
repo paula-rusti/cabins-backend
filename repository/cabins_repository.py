@@ -14,8 +14,14 @@ class CabinsRepository(AbstractCabinsRepository):
             session.add(cabin)
 
     def get(self, reference):
-        # return self.session.query(model.Batch).filter_by(reference=reference).one()
-        pass
+        # reference should be an object of type {Cabin.field_name: cabin_field_value}
+        with self.session as session:
+            statement = select(Cabin).where(Cabin.location == reference)
+            results = session.execute(statement)
+            cabin_list = []
+            for cabin in results:
+                cabin_list.append(cabin[0])
+            return cabin_list
 
     def get_all(self):
         statement = select(Cabin)  # select * from cabins
