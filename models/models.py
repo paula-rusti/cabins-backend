@@ -7,13 +7,13 @@ from sqlmodel import SQLModel, Field
 
 
 class Facility:
-    air_conditioning = 'Air conditioning'
-    towels = 'Towels'
+    air_conditioning = "Air conditioning"
+    towels = "Towels"
 
 
 class Role(str, Enum):
-    owner = 'owner'
-    tourist = 'tourist'
+    owner = "owner"
+    tourist = "tourist"
 
 
 class CabinBase(SQLModel):

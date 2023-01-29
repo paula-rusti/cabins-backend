@@ -9,8 +9,8 @@ def get_user():
         statement = select(User)  # select *
         results = session.execute(statement)
         for user in results:
-            print(f'userid {user[0].id}')
-            print(f'userid {user[0].username}')
+            print(f"userid {user[0].id}")
+            print(f"userid {user[0].username}")
             for cabin in user[0].cabins:
                 print(cabin)
 
@@ -25,7 +25,7 @@ def get_cabins():
         return cabins_list
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # get_user()
     cabins = get_cabins()
     print(cabins)

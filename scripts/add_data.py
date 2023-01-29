@@ -34,14 +34,17 @@ def add_cabin(cabin_name: str):
                     "https://cdn.vuetifyjs.com/images/cards/hotel.jpg",
                     "https://cdn.vuetifyjs.com/images/cards/sunshine.jpg",
                 ],
-                facilities=[Facility.air_conditioning, Facility.towels, Facility.towels],
+                facilities=[
+                    Facility.air_conditioning,
+                    Facility.towels,
+                    Facility.towels,
+                ],
             )
         )
         session.commit()
 
 
 if __name__ == "__main__":
-    pass
-    add_dummy_user()
-    # for name in ["Cabana5", "Cabana2", "Cabana3", "Cabana4"]:
-    #     add_cabin(name)
+    # add_dummy_user()
+    for name in ["Cabana6", "Cabana7"]:
+        add_cabin(name)

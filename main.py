@@ -1,40 +1,36 @@
-from typing import List
-
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.encoders import jsonable_encoder
 from fastapi_pagination import add_pagination, paginate, Page
 from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse
 
+from db import get_db_session
 from models.models import CabinBase
-from scripts import read_data
+from repository.cabins_repository import CabinsRepository
 
 app = FastAPI(docs_url="/")
 add_pagination(app)
 
-origins = [
-    "http://localhost:3000"
-]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-@app.on_event("startup")
-def on_startup():
-    # maybe write to db here
-    pass
+
+def cabins_repository():
+    return CabinsRepository(session=get_db_session())
 
 
 @app.get("/cabins", response_model=Page[CabinBase])
-def get_cabins():
+def get_cabins(cabins_repo: CabinsRepository = Depends(cabins_repository)):
     # TODO: make query using skip(offset) and limit instead of select *
-    cabins_rows = read_data.get_cabins()
+    # cabins_rows = read_data.get_cabins()
+    cabins_rows = cabins_repo.get_all()
     cabins = [
         CabinBase(
             name=cabin.name,
@@ -48,6 +44,12 @@ def get_cabins():
     ]
     cabins_page = paginate(cabins)
     return JSONResponse(status_code=200, content=jsonable_encoder(cabins_page))
+
+
+@app.get("/cabins/total")
+def get_total_cabins(cabins_repo: CabinsRepository = Depends(cabins_repository)):
+    cnt = cabins_repo.get_count()
+    return cnt
 
 
 if __name__ == "__main__":
