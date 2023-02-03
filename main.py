@@ -1,17 +1,16 @@
 from typing import Optional, List
 
 import uvicorn
-from fastapi import FastAPI, Depends, Query, UploadFile
+from fastapi import FastAPI, Depends, Query
 from fastapi.encoders import jsonable_encoder
 from fastapi_pagination import add_pagination, paginate, Page
 from starlette.middleware.cors import CORSMiddleware
-from starlette.responses import JSONResponse, Response
+from starlette.responses import JSONResponse
 
 from db import get_db_session
 from models.models import CabinBase
-from models.tables import Photo
 from repository.cabins_repository import CabinsRepository, CabinFilters
-from repository.photo_repository import PhotoRepository
+from routers.photo_router import router as photo_router
 
 app = FastAPI(docs_url="/")
 add_pagination(app)
@@ -24,31 +23,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(photo_router)
+
 
 def cabins_repository():
     return CabinsRepository(session=get_db_session())
-
-
-def photo_repository():
-    return PhotoRepository(session=get_db_session())
-
-
-@app.post("/photos/{cabin_id}/add")
-def upload_picture(
-    file: UploadFile, cabin_id: str, photo_repo=Depends(photo_repository)
-):
-    # call method to write picture to db
-    photo_entry = Photo(cabin_id=cabin_id, content=file.file.read())
-    photo_repo.add(photo_entry)
-    return {"filename": file.filename, "cabin_id": cabin_id}
-
-
-@app.get("/photo/{id}")
-def get_photo(id: int, photo_repo=Depends(photo_repository)):
-    photo = photo_repo.get_by_id(id)
-    if photo is None:
-        return Response(status_code=404, content="Not Found")
-    return Response(status_code=200, content=photo[0].content, headers={"Content-Type": "image/jpeg"})
 
 
 @app.get("/cabins", response_model=Page[CabinBase])
