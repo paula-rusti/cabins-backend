@@ -2,6 +2,7 @@ from datetime import datetime
 from enum import Enum
 from typing import List
 
+import sqlalchemy
 from sqlalchemy import ARRAY, String, Column
 from sqlmodel import SQLModel, Field
 
@@ -30,4 +31,4 @@ class UserBase(SQLModel):
     full_name: str
     created: datetime
     deleted: bool = False
-    role: Role
+    role: Role = Field(sa_column=Column(sqlalchemy.types.Enum(Role)))

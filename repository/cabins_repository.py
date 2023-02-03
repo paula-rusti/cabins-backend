@@ -48,6 +48,7 @@ class CabinsRepository(AbstractCabinsRepository):
     def add(self, cabin):
         with self.session as session:
             session.add(cabin)
+            session.commit()
 
     def get(self, filters: CabinFilters):
         # build query based on filters
