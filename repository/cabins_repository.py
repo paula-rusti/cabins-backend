@@ -63,7 +63,7 @@ class CabinsRepository(AbstractCabinsRepository):
             if "max" in filters.price:
                 statement = statement.where(Cabin.price <= filters.price["max"])
         with self.session as session:
-            results = session.execute(statement)
+            results = session.execute(statement.order_by(Cabin.id))
             cabin_list = []
             for cabin in results:
                 cabin_list.append(cabin[0])

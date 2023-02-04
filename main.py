@@ -49,18 +49,18 @@ def get_cabins(
         cabins_rows = cabins_repo.get(
             filters=CabinFilters(location=location, price=price)
         )
-    cabins = [
-        CabinBase(
-            name=cabin.name,
-            price=cabin.price,
-            location=cabin.location,
-            description=cabin.description,
-            photos=cabin.photos,
-            facilities=cabin.facilities,
-        )
-        for cabin in cabins_rows
-    ]
-    cabins_page = paginate(cabins)
+    # cabins = [
+    #     CabinBase(
+    #         name=cabin.name,
+    #         price=cabin.price,
+    #         location=cabin.location,
+    #         description=cabin.description,
+    #         photos=cabin.photos,
+    #         facilities=cabin.facilities,
+    #     )
+    #     for cabin in cabins_rows
+    # ]
+    cabins_page = paginate(cabins_rows)
     return JSONResponse(status_code=200, content=jsonable_encoder(cabins_page))
 
 
