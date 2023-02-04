@@ -22,7 +22,7 @@ class CabinBase(SQLModel):
     price: float
     location: str
     description: str
-    photos: List[str] = Field(default=None, sa_column=Column(ARRAY(String())))
+    # photos: List[str] = Field(default=None, sa_column=Column(ARRAY(String())))
     facilities: List[str] = Field(default=None, sa_column=Column(ARRAY(String())))
 
 
