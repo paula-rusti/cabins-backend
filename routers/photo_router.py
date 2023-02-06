@@ -35,14 +35,7 @@ def get_photo(id: int, photo_repo=Depends(photo_repository)):
 
 @router.get("/cabin/{cabin_id}")
 def get_photos_of_cabin(cabin_id: int, photo_repo=Depends(photo_repository)):
-    """gets a list of photo ids corresponding to a cabin"""
-    ids = photo_repo.get_photos_of_cabin(cabin_id)
-    return ids
+    """gets a list of photo ids and principal corresponding to a cabin"""
+    photos = photo_repo.get_photos_of_cabin(cabin_id)
+    return photos
 
-
-@router.get("/cabin/principal/{cabin_id}")
-def get_principal_photo_of_cabin(cabin_id: int, photo_repo=Depends(photo_repository)):
-    photo = photo_repo.get_principal(cabin_id)
-    if photo is None:
-        return Response(status_code=404, content="Not Found")
-    return Response(status_code=200, content=photo.content, headers={"Content-Type": "image/jpeg"})

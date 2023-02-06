@@ -37,6 +37,7 @@ def get_cabins(
     price_high: Optional[int] = Query(2**53, description="Cabin price"),
     cabins_repo: CabinsRepository = Depends(cabins_repository),
 ):
+    # PT FIECARE ROW ITI FACI REPO PT PHOTOS SI FACI GET_PHOTO_METADATA_BY_ID unde returnezi photo id, cabin id, principal
     # TODO: make query using skip(offset) and limit instead of select *
     if not (location or price_low or price_high):
         cabins_rows = cabins_repo.get_all()

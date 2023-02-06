@@ -19,20 +19,11 @@ class PhotoRepository(AbstractPhotoRepository):
             results = session.execute(statement)
             return results.first()[0]
 
-    def get_photos_of_cabin(self, cabin_id):
+    def get_photos_of_cabin(self, cabin_id, principal=False):
+        # returns an array of objects containing the photo id and a boolean value specifying if the photo is principal or not
         statement = select(Photo).where(Photo.cabin_id == int(cabin_id))
         with self.session as session:
             results = session.execute(statement)
-            id_list = []
-            for c in results:
-                id_list.append(c[0].id)
-            return id_list
-
-    def get_principal(self, cabin_id):
-        statement = select(Photo).where(Photo.cabin_id == int(cabin_id)).where(Photo.principal == True)
-        with self.session as session:
-            results = session.execute(statement).first()
-            if results is not None:
-                return results[0]
-            else:
-                return None
+            photos = [{"id": c[0].id, "principal": c[0].principal} for c in results]
+            photos.sort(key=lambda x: x["principal"], reverse=True)
+            return photos
