@@ -82,3 +82,10 @@ class CabinsRepository(AbstractCabinsRepository):
         with self.session as session:
             cnt = session.query(Cabin).count()
             return cnt
+
+    def get_cabin_by_id(self, cabin_id):
+        statement = select(Cabin).where(Cabin.id == cabin_id)
+        with self.session as session:
+            cabin = session.execute(statement).first()
+            return cabin
+
