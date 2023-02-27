@@ -39,9 +39,14 @@ def get_cabins(
     return JSONResponse(status_code=200, content=jsonable_encoder(cabins_page))
 
 
+@router.get("/count")
+def get_total_cabins(cabins_repo: CabinsRepository = Depends(cabins_repository)):
+    cnt = cabins_repo.get_count()
+    return cnt
+
+
 @router.get("/{id}")
 def get_cabin(id: int, cabins_repo: CabinsRepository = Depends(cabins_repository)):
-    cabin = None
     try:
         cabin = cabins_repo.get_cabin_by_id(id)
     except Exception:
@@ -50,9 +55,3 @@ def get_cabin(id: int, cabins_repo: CabinsRepository = Depends(cabins_repository
         raise HTTPException(status_code=404, detail="Cabin not found")
     else:
         return cabin
-
-
-@router.get("/total")
-def get_total_cabins(cabins_repo: CabinsRepository = Depends(cabins_repository)):
-    cnt = cabins_repo.get_count()
-    return cnt
