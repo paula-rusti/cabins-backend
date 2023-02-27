@@ -1,7 +1,7 @@
 from sqlmodel import select
 
 from db import get_db_session
-from models.tables import User, Cabin
+from models.tables import User, CabinTable
 
 
 def get_user():
@@ -17,7 +17,7 @@ def get_user():
 
 def get_cabins():
     with get_db_session() as session:
-        statement = select(Cabin)  # select * from cabins
+        statement = select(CabinTable)  # select * from cabins
         cabins = session.execute(statement)
         cabins_list = []
         for c in cabins:

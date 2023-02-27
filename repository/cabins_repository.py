@@ -2,9 +2,13 @@ from typing import List, Optional
 
 from pydantic import BaseModel, validator
 from sqlalchemy import or_
+from sqlalchemy.orm import Session
 from sqlmodel import select
 
-from models.tables import Cabin
+import models.orm_models
+from models.dto_models import CabinCreate
+from models.orm_models import Cabin
+from models.tables import CabinTable
 from repository.repository import AbstractCabinsRepository
 from scripts.data import locations
 
@@ -42,50 +46,49 @@ class CabinFilters(BaseModel):
 
 
 class CabinsRepository(AbstractCabinsRepository):
-    def __init__(self, session):
+    def __init__(self, session, db: Session):
         self.session = session
+        self.db = db
 
-    def add(self, cabin):
-        with self.session as session:
-            session.add(cabin)
-            session.commit()
+    def add(self, cabin: CabinCreate):
+        self.db.add(Cabin(**cabin.dict()))
+        self.db.commit()
 
     def get(self, filters: CabinFilters):
         # build query based on filters
-        statement = select(Cabin)
+        statement = select(CabinTable)
         if filters.location:
             statement = statement.where(
-                or_(*[Cabin.location == location for location in filters.location])
+                or_(*[CabinTable.location == location for location in filters.location])
             )
         if filters.price:
             if "min" in filters.price:
-                statement = statement.where(Cabin.price >= filters.price["min"])
+                statement = statement.where(CabinTable.price >= filters.price["min"])
             if "max" in filters.price:
-                statement = statement.where(Cabin.price <= filters.price["max"])
+                statement = statement.where(CabinTable.price <= filters.price["max"])
         with self.session as session:
-            results = session.execute(statement.order_by(Cabin.id))
+            results = session.execute(statement.order_by(CabinTable.id))
             cabin_list = []
             for cabin in results:
                 cabin_list.append(cabin[0])
             return cabin_list
 
-    def get_all(self):
-        statement = select(Cabin)  # select * from cabins
-        with self.session as session:
-            cabins = session.execute(statement)
-            cabins_list = []
-            for c in cabins:
-                cabins_list.append(c[0])
-            return cabins_list
+    def get_all(self, skip: int = 0, limit: int = 100):
+        return self.db.query(models.orm_models.Cabin).offset(skip).limit(limit).all()
+
+        # statement = select(CabinTable)  # select * from cabins
+        # with self.session as session:
+        #     cabins = session.execute(statement)
+        #     cabins_list = []
+        #     for c in cabins:
+        #         cabins_list.append(c[0])
+        #     return cabins_list
 
     def get_count(self):
-        with self.session as session:
-            cnt = session.query(Cabin).count()
-            return cnt
+        return self.db.query(models.orm_models.Cabin).count()
 
     def get_cabin_by_id(self, cabin_id):
-        statement = select(Cabin).where(Cabin.id == cabin_id)
+        statement = select(CabinTable).where(CabinTable.id == cabin_id)
         with self.session as session:
             cabin = session.execute(statement).first()
             return cabin
-

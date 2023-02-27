@@ -23,3 +23,24 @@ def get_db_session():
     engine = get_engine()
     session = Session(bind=engine)
     return session
+
+
+# slowly replace sqlmodel with sqlalchemy
+from sqlalchemy import create_engine
+from sqlalchemy.orm import declarative_base, sessionmaker
+
+
+engine = create_engine(url)
+# encourage placing configuration options for creating new Session objects in just one place
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+# models package will import it
+Base = declarative_base()   # orm models will inherit from it, keeps metadata in one place
+
+# will be used as a dependency in routers to interact with the db
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

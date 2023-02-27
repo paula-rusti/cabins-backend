@@ -31,3 +31,5 @@ class UserBase(SQLModel):
     created: datetime
     deleted: bool = False
     role: Role = Field(sa_column=Column(sqlalchemy.types.Enum(Role)))
+
+

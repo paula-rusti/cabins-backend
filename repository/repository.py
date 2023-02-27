@@ -11,7 +11,7 @@ class AbstractCabinsRepository(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_all(self):
+    def get_all(self, skip: int, limit: int):
         raise NotImplementedError
 
     @abc.abstractmethod

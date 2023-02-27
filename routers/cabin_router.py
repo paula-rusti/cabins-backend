@@ -5,15 +5,22 @@ from fastapi.encoders import jsonable_encoder
 from fastapi_pagination import paginate, Page
 from starlette.responses import JSONResponse
 
+from db import get_db
 from db import get_db_session
+from models.dto_models import CabinCreate, Cabin
 from models.models import CabinBase
 from repository.cabins_repository import CabinsRepository, CabinFilters
 
 router = APIRouter(prefix="/cabins", tags=["cabins"])
 
 
-def cabins_repository():
-    return CabinsRepository(session=get_db_session())
+def cabins_repository(db=Depends(get_db)):
+    return CabinsRepository(session=get_db_session(), db=db)
+
+
+@router.post("/add")
+def add_cabin(cabin: CabinCreate, cabins_repo: CabinsRepository = Depends(cabins_repository)):
+    cabins_repo.add(cabin)
 
 
 @router.get("/", response_model=Page[CabinBase])
@@ -39,8 +46,16 @@ def get_cabins(
     return JSONResponse(status_code=200, content=jsonable_encoder(cabins_page))
 
 
+# new route for fetching all cabins
+@router.get("/get_all", response_model=Page[Cabin])
+def get_cabins2(cabins_repo: CabinsRepository = Depends(cabins_repository)):
+    cabin_rows = cabins_repo.get_all(skip=0, limit=3)
+    cabins_page = paginate(cabin_rows)
+    return JSONResponse(status_code=200, content=jsonable_encoder(cabins_page))
+
+
 @router.get("/count")
-def get_total_cabins(cabins_repo: CabinsRepository = Depends(cabins_repository)):
+def get_cabins_number(cabins_repo: CabinsRepository = Depends(cabins_repository)):
     cnt = cabins_repo.get_count()
     return cnt
 

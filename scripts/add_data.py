@@ -2,7 +2,7 @@ import datetime
 
 from db import get_db_session
 from models.models import Role, Facility
-from models.tables import User, Cabin
+from models.tables import User, CabinTable
 
 
 def add_dummy_user():
@@ -23,7 +23,7 @@ def add_dummy_user():
 def add_cabin(cabin_name: str):
     with get_db_session() as session:
         session.add(
-            Cabin(
+            CabinTable(
                 user_id=0,
                 name=cabin_name,
                 price=100,
