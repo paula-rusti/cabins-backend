@@ -1,16 +1,60 @@
 # models used by the orm
-from sqlalchemy import Column, Integer, String, Float
-from sqlalchemy.dialects.postgresql import ARRAY
+import enum
+
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, Enum, func, DateTime, Boolean, SMALLINT
+from sqlalchemy.dialects.postgresql import ARRAY, BYTEA
+from sqlalchemy.orm import relationship
 
 from db import Base
 
 
+class Role(enum.Enum):
+    owner = "owner"
+    tourist = "tourist"
+
+
 class Cabin(Base):
-    __tablename__ = 'cabin2'
+    __tablename__ = 'cabin'
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True)
-    description = Column(String)
-    location = Column(String)
+    user_id = Column(Integer, ForeignKey('user.id'), nullable=False)
+    name = Column(String(50), index=True, nullable=False)
+    description = Column(String(500))
+    location = Column(String(100), nullable=False)
     facilities = Column(ARRAY(Integer))
-    price = Column(Float)
+    price = Column(Float, nullable=False)
+    capacity = Column(SMALLINT, nullable=False)
+    nr_beds = Column(SMALLINT, nullable=False)
+    nr_rooms = Column(SMALLINT, nullable=False)
+    nr_bathrooms = Column(SMALLINT, nullable=False)
+
+    owner = relationship("User", back_populates="cabins")
+    photos = relationship("Photo")
+
+
+# profile + account = user
+class User(Base):
+    __tablename__ = "user"
+
+    id = Column(Integer, primary_key=True, index=True)
+    role = Column(Enum(Role))
+    username = Column(String(50))
+    full_name = Column(String(50))          # separated by spaces
+    email_address = Column(String(50))      # needs validation
+    phone_number = Column(String(15))
+    about_me = Column(String(500))
+    profile_pic = Column(BYTEA)
+    created = Column(DateTime(timezone=True), server_default=func.now())    # calculate timestamp on server side
+    deleted = Column(Boolean, default=False, nullable=False)
+
+    cabins = relationship("Cabin", back_populates="owner")
+
+
+class Photo(Base):
+    # a table representing photos of cabins
+    __tablename__ = "photo"
+
+    id = Column(Integer, primary_key=True, index=True)
+    cabin_id = Column(Integer, ForeignKey("cabin.id"), nullable=False)
+    content = Column(BYTEA)
+    principal = Column(Boolean, nullable=False)

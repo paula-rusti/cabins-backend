@@ -5,8 +5,9 @@ from starlette.middleware.cors import CORSMiddleware
 
 from db import engine
 from models.orm_models import Base
-from routers.cabin_router import router as cabin_router
 from routers.photo_router import router as photo_router
+from routers.cabin_router import router as cabin_router
+from routers.user_router import router as user_router
 
 Base.metadata.create_all(bind=engine)   # creates all the tables, will not attempt to recreate if they exist
 

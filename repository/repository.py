@@ -6,9 +6,9 @@ class AbstractCabinsRepository(abc.ABC):
     def add(self, item):
         raise NotImplementedError
 
-    @abc.abstractmethod
-    def get(self, reference):
-        raise NotImplementedError
+    # @abc.abstractmethod
+    # def get(self, reference):
+    #     raise NotImplementedError
 
     @abc.abstractmethod
     def get_all(self, skip: int, limit: int):
