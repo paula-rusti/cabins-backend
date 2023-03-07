@@ -1,8 +1,12 @@
+import datetime
+from typing import Union
+
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from fastapi_pagination import paginate, Page
 from starlette.responses import JSONResponse
 
+import models.orm_models
 from db import get_db
 from models.dto_models import CabinCreate, Cabin
 from repository.cabins_repository import CabinsRepository
@@ -31,6 +35,14 @@ def get_all_cabins(skip: int = 0, limit: int = 10, cabins_repo: CabinsRepository
 def get_cabins_count(cabins_repo: CabinsRepository = Depends(cabins_repository)):
     cnt = cabins_repo.get_count()
     return cnt
+
+
+@router.get("/available", response_model=Page[models.dto_models.Cabin])
+def get_available_cabins(start_date: datetime.date, end_date: datetime.date, location: Union[str, None] = None,
+                         nr_guests: Union[int, None] = None, CabinsRepository = Depends(cabins_repository)):
+    results = CabinsRepository.get_cabins_by_dates(start_date, end_date, location, nr_guests)
+    cabins_page = paginate(results)
+    return JSONResponse(status_code=200, content=jsonable_encoder(cabins_page))
 
 
 @router.get("/{id}")

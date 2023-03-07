@@ -1,6 +1,8 @@
+import datetime
 from typing import List, Optional
 
 from pydantic import BaseModel, validator
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 import models.orm_models
@@ -59,6 +61,27 @@ class CabinsRepository(AbstractCabinsRepository):
     def get_count(self):
         return self.db.query(models.orm_models.Cabin).count()
 
+    def get_cabins_by_dates(self, start_date: datetime.date, end_date: datetime.date,
+                            location: str = None, nr_guests: int = None):
+        statement_text = "SELECT * from cabin WHERE id NOT IN (SELECT cabin_id FROM booking WHERE " \
+                         "(start_date  >= :start_date_value AND start_date <= :end_date_value) OR " \
+                         "(end_date  >= :start_date_value AND end_date <= :end_date_value) OR " \
+                         "(start_date  <= :start_date_value AND end_date >= :end_date_value))"
+        params_dict = {"start_date_value": start_date, "end_date_value": end_date}
+        if location:
+            location_query = " AND location LIKE '%' || LOWER(:location_value) || '%'"
+            statement_text += location_query
+            params_dict["location_value"] = location
+        if nr_guests:
+            guests_query = " AND capacity >= :nr_guests_value"
+            statement_text += guests_query
+            params_dict["nr_guests_value"] = nr_guests
+        statement_text += ';'
+        statement = text(statement_text)
+        statement = statement.bindparams(**params_dict)
+        result = self.db.execute(statement).all()
+        return result
+
     # def get(self, filters: CabinFilters):
     #     # build query based on filters
     #     statement = select(CabinTable)
@@ -77,7 +100,3 @@ class CabinsRepository(AbstractCabinsRepository):
     #         for cabin in results:
     #             cabin_list.append(cabin[0])
     #         return cabin_list
-
-
-
-

@@ -1,7 +1,7 @@
 # models used by the orm
 import enum
 
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, Enum, func, DateTime, Boolean, SMALLINT
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, Enum, func, DateTime, Boolean, SMALLINT, Date
 from sqlalchemy.dialects.postgresql import ARRAY, BYTEA
 from sqlalchemy.orm import relationship
 
@@ -14,10 +14,10 @@ class Role(enum.Enum):
 
 
 class Cabin(Base):
-    __tablename__ = 'cabin'
+    __tablename__ = "cabin"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey('user.id'), nullable=False)
+    user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
     name = Column(String(50), index=True, nullable=False)
     description = Column(String(500))
     location = Column(String(100), nullable=False)
@@ -58,3 +58,15 @@ class Photo(Base):
     cabin_id = Column(Integer, ForeignKey("cabin.id"), nullable=False)
     content = Column(BYTEA)
     principal = Column(Boolean, nullable=False)
+
+
+class Booking(Base):
+    __tablename__ = "booking"
+
+    id = Column(Integer, primary_key=True, index=True)
+    cabin_id = Column(Integer, ForeignKey("cabin.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
+    start_date = Column(Date, nullable=False)
+    end_date = Column(Date, nullable=False)
+    price = Column(Float, nullable=False)
+    nr_guests = Column(Integer)

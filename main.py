@@ -7,7 +7,7 @@ from db import engine
 from models.orm_models import Base
 from routers.photo_router import router as photo_router
 from routers.cabin_router import router as cabin_router
-from routers.user_router import router as user_router
+from routers.booking_router import router as booking_router
 
 Base.metadata.create_all(bind=engine)   # creates all the tables, will not attempt to recreate if they exist
 
@@ -24,6 +24,7 @@ app.add_middleware(
 
 app.include_router(photo_router)
 app.include_router(cabin_router)
+app.include_router(booking_router)
 
 
 if __name__ == "__main__":

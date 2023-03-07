@@ -1,4 +1,5 @@
 # models used by fastapi
+import datetime
 from typing import List
 
 from pydantic import BaseModel
@@ -35,14 +36,34 @@ class Cabin(BaseModel):
         orm_mode = True
 
 
-class PhotoCreate(BaseModel):   # sent from the api
+class PhotoCreate(BaseModel):  # sent from the api
     cabin_id: int
     content: bytes
     principal: bool = False
 
 
-class Photo(BaseModel):     # returned from the api
+class Photo(BaseModel):  # returned from the api
     id: int
     cabin_id: int
     content: bytes
     principal: bool = False
+
+    class Config:
+        orm_mode = True
+
+
+class BookingCreate(BaseModel):
+    cabin_id: int
+    user_id: int
+    start_date: datetime.datetime
+    end_date: datetime.datetime
+    price: float
+    nr_guests: int
+
+
+class Booking(BookingCreate):
+    id: int
+
+    class Config:
+        orm_mode = True
+
