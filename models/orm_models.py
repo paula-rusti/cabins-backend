@@ -1,7 +1,19 @@
 # models used by the orm
 import enum
 
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, Enum, func, DateTime, Boolean, SMALLINT, Date
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    Float,
+    ForeignKey,
+    Enum,
+    func,
+    DateTime,
+    Boolean,
+    SMALLINT,
+    Date,
+)
 from sqlalchemy.dialects.postgresql import ARRAY, BYTEA
 from sqlalchemy.orm import relationship
 
@@ -39,12 +51,14 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     role = Column(Enum(Role))
     username = Column(String(50))
-    full_name = Column(String(50))          # separated by spaces
-    email_address = Column(String(50))      # needs validation
+    full_name = Column(String(50))  # separated by spaces
+    email_address = Column(String(50))  # needs validation
     phone_number = Column(String(15))
     about_me = Column(String(500))
     profile_pic = Column(BYTEA)
-    created = Column(DateTime(timezone=True), server_default=func.now())    # calculate timestamp on server side
+    created = Column(
+        DateTime(timezone=True), server_default=func.now()
+    )  # calculate timestamp on server side
     deleted = Column(Boolean, default=False, nullable=False)
 
     cabins = relationship("Cabin", back_populates="owner")

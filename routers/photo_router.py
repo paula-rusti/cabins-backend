@@ -15,10 +15,15 @@ router = APIRouter(prefix="/photos", tags=["photos"])
 
 @router.post("/{cabin_id}/add")
 def upload_picture(
-        file: UploadFile, cabin_id: str, principal: str = False, photo_repo=Depends(photo_repository)
+    file: UploadFile,
+    cabin_id: str,
+    principal: str = False,
+    photo_repo=Depends(photo_repository),
 ):
     """uploads a photo of a corresponding cabin"""
-    photo_entry = models.dto_models.PhotoCreate(cabin_id=cabin_id, content=file.file.read(), principal=principal)
+    photo_entry = models.dto_models.PhotoCreate(
+        cabin_id=cabin_id, content=file.file.read(), principal=principal
+    )
     photo_repo.add(photo_entry)
     return {"filename": file.filename, "cabin_id": cabin_id}
 
@@ -29,7 +34,9 @@ def get_photo(id: int, photo_repo=Depends(photo_repository)):
     photo = photo_repo.get_by_id(id)
     if photo is None:
         return Response(status_code=404, content="Not Found")
-    return Response(status_code=200, content=photo.content, headers={"Content-Type": "image/jpeg"})
+    return Response(
+        status_code=200, content=photo.content, headers={"Content-Type": "image/jpeg"}
+    )
 
 
 @router.get("/cabin/{cabin_id}")

@@ -1,18 +1,18 @@
 import uvicorn
 from fastapi import FastAPI
-from fastapi_pagination import add_pagination
 from starlette.middleware.cors import CORSMiddleware
 
 from db import engine
 from models.orm_models import Base
-from routers.photo_router import router as photo_router
-from routers.cabin_router import router as cabin_router
 from routers.booking_router import router as booking_router
+from routers.cabin_router import router as cabin_router
+from routers.photo_router import router as photo_router
 
-Base.metadata.create_all(bind=engine)   # creates all the tables, will not attempt to recreate if they exist
+Base.metadata.create_all(
+    bind=engine
+)  # creates all the tables, will not attempt to recreate if they exist
 
 app = FastAPI(docs_url="/")
-add_pagination(app)
 
 app.add_middleware(
     CORSMiddleware,

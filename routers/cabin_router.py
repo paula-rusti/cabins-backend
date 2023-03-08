@@ -3,12 +3,10 @@ from typing import Union
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
-from fastapi_pagination import paginate, Page
 from starlette.responses import JSONResponse
 
-import models.orm_models
 from db import get_db
-from models.dto_models import CabinCreate, Cabin
+from models.dto_models import CabinCreate
 from repository.cabins_repository import CabinsRepository
 
 router = APIRouter(prefix="/cabins", tags=["cabins"])
@@ -20,15 +18,27 @@ def cabins_repository(db=Depends(get_db)):
 
 
 @router.post("/add")
-def add_cabin(cabin: CabinCreate, cabins_repo: CabinsRepository = Depends(cabins_repository)):
+def add_cabin(
+    cabin: CabinCreate, cabins_repo: CabinsRepository = Depends(cabins_repository)
+):
     cabins_repo.add(cabin)
 
 
-@router.get("/all", response_model=Page[Cabin])
-def get_all_cabins(skip: int = 0, limit: int = 10, cabins_repo: CabinsRepository = Depends(cabins_repository)):
+@router.get("/all")
+def get_all_cabins(
+    skip: int = 0,
+    limit: int = 10,
+    cabins_repo: CabinsRepository = Depends(cabins_repository),
+):
     cabin_rows = cabins_repo.get_all(skip, limit)
-    cabins_page = paginate(cabin_rows)
-    return JSONResponse(status_code=200, content=jsonable_encoder(cabins_page))
+    encoded_rows = jsonable_encoder(cabin_rows)
+    response = {
+        "items": encoded_rows,
+        "total": len(encoded_rows),
+        "page": skip // limit + 1,
+        "size": limit,
+    }
+    return JSONResponse(status_code=200, content=response)
 
 
 @router.get("/count")
@@ -37,16 +47,32 @@ def get_cabins_count(cabins_repo: CabinsRepository = Depends(cabins_repository))
     return cnt
 
 
-@router.get("/available", response_model=Page[models.dto_models.Cabin])
-def get_available_cabins(start_date: datetime.date, end_date: datetime.date, location: Union[str, None] = None,
-                         nr_guests: Union[int, None] = None, CabinsRepository = Depends(cabins_repository)):
-    results = CabinsRepository.get_cabins_by_dates(start_date, end_date, location, nr_guests)
-    cabins_page = paginate(results)
-    return JSONResponse(status_code=200, content=jsonable_encoder(cabins_page))
+@router.get("/available")
+def get_available_cabins(
+    start_date: datetime.date,
+    end_date: datetime.date,
+    location: Union[str, None] = None,
+    nr_guests: Union[int, None] = None,
+    skip: int = 0,
+    limit: int = 10,
+    cabins_repo=Depends(cabins_repository),
+):
+    cabins_rows = cabins_repo.get_cabins_by_dates(start_date, end_date, location, nr_guests, skip, limit)
+    encoded_rows = jsonable_encoder(cabins_rows)
+    response = {
+        "items": encoded_rows,
+        "total": len(encoded_rows),
+        "page": skip // limit + 1,
+        "size": limit,
+    }
+
+    return JSONResponse(status_code=200, content=response)
 
 
 @router.get("/{id}")
-def get_cabin_by_id(id: int, cabins_repo: CabinsRepository = Depends(cabins_repository)):
+def get_cabin_by_id(
+    id: int, cabins_repo: CabinsRepository = Depends(cabins_repository)
+):
     try:
         cabin = cabins_repo.get_by_id(id)
     except Exception:
@@ -64,7 +90,6 @@ def get_cabin_by_id(id: int, cabins_repo: CabinsRepository = Depends(cabins_repo
 #         price_high: Optional[int] = Query(2 ** 53, description="Cabin price"),
 #         cabins_repo: CabinsRepository = Depends(cabins_repository),
 # ):
-#     # TODO: make query using skip(offset) and limit instead of select *
 #     if not (location or price_low or price_high):
 #         cabins_rows = cabins_repo.get_all()
 #     else:

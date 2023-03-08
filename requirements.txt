@@ -1,5 +1,4 @@
 fastapi~=0.89.1
-fastapi-pagination
 uvicorn~=0.20.0
 alembic
 pydantic[email]

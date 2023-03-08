@@ -66,4 +66,3 @@ class Booking(BookingCreate):
 
     class Config:
         orm_mode = True
-

@@ -11,6 +11,3 @@ router = APIRouter(prefix="/users", tags=["users"])
 @router.get("/")
 def get_all_users(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     return db.query(models.orm_models.User).offset(skip).limit(limit).all()
-
-
-

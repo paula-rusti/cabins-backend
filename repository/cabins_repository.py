@@ -56,17 +56,30 @@ class CabinsRepository(AbstractCabinsRepository):
         return self.db.query(models.orm_models.Cabin).offset(skip).limit(limit).all()
 
     def get_by_id(self, cabin_id):
-        return self.db.query(models.orm_models.Cabin).filter(models.orm_models.Cabin.id == cabin_id).first()
+        return (
+            self.db.query(models.orm_models.Cabin)
+            .filter(models.orm_models.Cabin.id == cabin_id)
+            .first()
+        )
 
     def get_count(self):
         return self.db.query(models.orm_models.Cabin).count()
 
-    def get_cabins_by_dates(self, start_date: datetime.date, end_date: datetime.date,
-                            location: str = None, nr_guests: int = None):
-        statement_text = "SELECT * from cabin WHERE id NOT IN (SELECT cabin_id FROM booking WHERE " \
-                         "(start_date  >= :start_date_value AND start_date <= :end_date_value) OR " \
-                         "(end_date  >= :start_date_value AND end_date <= :end_date_value) OR " \
-                         "(start_date  <= :start_date_value AND end_date >= :end_date_value))"
+    def get_cabins_by_dates(
+        self,
+        start_date: datetime.date,
+        end_date: datetime.date,
+        location: str = None,
+        nr_guests: int = None,
+        skip: int = 0,
+        limit: int = 0,
+    ):
+        statement_text = (
+            "SELECT * from cabin WHERE id NOT IN (SELECT cabin_id FROM booking WHERE "
+            "(start_date  >= :start_date_value AND start_date <= :end_date_value) OR "
+            "(end_date  >= :start_date_value AND end_date <= :end_date_value) OR "
+            "(start_date  <= :start_date_value AND end_date >= :end_date_value))"
+        )
         params_dict = {"start_date_value": start_date, "end_date_value": end_date}
         if location:
             location_query = " AND location LIKE '%' || LOWER(:location_value) || '%'"
@@ -76,7 +89,10 @@ class CabinsRepository(AbstractCabinsRepository):
             guests_query = " AND capacity >= :nr_guests_value"
             statement_text += guests_query
             params_dict["nr_guests_value"] = nr_guests
-        statement_text += ';'
+        statement_text += " ORDER BY id OFFSET :offset_value LIMIT :limit_value"
+        params_dict["offset_value"] = skip
+        params_dict["limit_value"] = limit
+        statement_text += ";"
         statement = text(statement_text)
         statement = statement.bindparams(**params_dict)
         result = self.db.execute(statement).all()

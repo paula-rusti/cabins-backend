@@ -15,7 +15,9 @@ engine = create_engine(url)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # models package will import it
-Base = declarative_base()   # orm models will inherit from it, keeps metadata in one place
+Base = (
+    declarative_base()
+)  # orm models will inherit from it, keeps metadata in one place
 
 
 # will be used as a dependency in routers to interact with the db
