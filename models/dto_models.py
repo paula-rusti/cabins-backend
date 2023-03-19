@@ -66,3 +66,18 @@ class Booking(BookingCreate):
 
     class Config:
         orm_mode = True
+
+
+class ReviewIn(BaseModel):
+    cabin_id: int
+    grade: float
+    description: str
+
+
+class Review(ReviewIn):
+    id: int
+    user_id: int
+    created: datetime.datetime
+
+    class Config:
+        orm_mode = True

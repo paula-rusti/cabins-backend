@@ -19,21 +19,21 @@ def cabins_repository(db=Depends(get_db)):
     return CabinsRepository(db=db)
 
 
-def pagination_params(page: int = 0, size: int = 10):
+def pagination_params(page: int = 1, size: int = 10):
     return (page - 1) * size, size
 
 
 @router.post("/add")
 def add_cabin(
-        cabin: CabinCreate, cabins_repo: CabinsRepository = Depends(cabins_repository)
+    cabin: CabinCreate, cabins_repo: CabinsRepository = Depends(cabins_repository)
 ):
     cabins_repo.add(cabin)
 
 
 @router.get("/all")
 def get_all_cabins(
-        pagination=Depends(pagination_params),
-        cabins_repo: CabinsRepository = Depends(cabins_repository),
+    pagination=Depends(pagination_params),
+    cabins_repo: CabinsRepository = Depends(cabins_repository),
 ):
     skip, limit = pagination
     cabin_rows = cabins_repo.get_all(skip, limit)
@@ -55,13 +55,13 @@ def get_cabins_count(cabins_repo: CabinsRepository = Depends(cabins_repository))
 
 @router.get("/available")
 def get_available_cabins(
-        start_date: datetime.date,
-        end_date: datetime.date,
-        location: Union[str, None] = None,
-        nr_guests: Union[int, None] = None,
-        page: int = 0,
-        size: int = 10,
-        cabins_repo=Depends(cabins_repository),
+    start_date: datetime.date,
+    end_date: datetime.date,
+    location: Union[str, None] = None,
+    nr_guests: Union[int, None] = None,
+    page: int = 0,
+    size: int = 10,
+    cabins_repo=Depends(cabins_repository),
 ):
     skip = (page - 1) * size
     limit = size
@@ -81,7 +81,7 @@ def get_available_cabins(
 
 @router.get("/{id}")
 def get_cabin_by_id(
-        id: int, cabins_repo: CabinsRepository = Depends(cabins_repository)
+    id: int, cabins_repo: CabinsRepository = Depends(cabins_repository)
 ):
     try:
         cabin = cabins_repo.get_by_id(id)
@@ -91,6 +91,7 @@ def get_cabin_by_id(
         raise HTTPException(status_code=404, detail="Cabin not found")
     else:
         return cabin
+
 
 # @router.get("/", response_model=Page[CabinBase])
 # def get_cabins(
