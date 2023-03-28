@@ -20,25 +20,27 @@ def review_repository(db=Depends(get_db)):
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
 def add_review(
-        review: dto_models.ReviewIn,
-        user: User = Depends(authorize_user),
-        repo: ReviewRepository = Depends(review_repository),
+    review: dto_models.ReviewIn,
+    user: User = Depends(authorize_user),
+    repo: ReviewRepository = Depends(review_repository),
 ):
     """The review can be inserted if the user booked that cabin in the past
     and the user did not review that cabin previously
     This route will be authenticated and the user id is extracted from a header for mocking demo"""
     inserted = repo.add_review(review=review, user_id=user.user_id)
     if not inserted:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Review cannot be added")
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="Review cannot be added"
+        )
     return {"detail": "Review added"}
 
 
 @router.get("/")
 def get_reviews(
-        cabin_id: int = None,
-        user_id: int = None,
-        pagination=Depends(pagination_params),
-        db: Session = Depends(get_db),
+    cabin_id: int = None,
+    user_id: int = None,
+    pagination=Depends(pagination_params),
+    db: Session = Depends(get_db),
 ):
     """Provide either cabin_id or user_id to retrieve either the reviews of a cabin or the reviews provided by a user"""
     if not cabin_id and not user_id:
