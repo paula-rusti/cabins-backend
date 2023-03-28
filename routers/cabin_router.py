@@ -1,13 +1,14 @@
 import datetime
 from typing import Union
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.encoders import jsonable_encoder
 from starlette.responses import JSONResponse
 
 from db import get_db
 from models.dto_models import CabinCreate
 from repository.cabins_repository import CabinsRepository
+from utils.commons import pagination_params
 
 router = APIRouter(prefix="/cabins", tags=["cabins"])
 
@@ -17,10 +18,6 @@ router = APIRouter(prefix="/cabins", tags=["cabins"])
 
 def cabins_repository(db=Depends(get_db)):
     return CabinsRepository(db=db)
-
-
-def pagination_params(page: int = 1, size: int = 10):
-    return (page - 1) * size, size
 
 
 @router.post("/add")
@@ -59,12 +56,10 @@ def get_available_cabins(
     end_date: datetime.date,
     location: Union[str, None] = None,
     nr_guests: Union[int, None] = None,
-    page: int = 0,
-    size: int = 10,
+    pagination=Depends(pagination_params),
     cabins_repo=Depends(cabins_repository),
 ):
-    skip = (page - 1) * size
-    limit = size
+    skip, limit = pagination
     cabins_rows = cabins_repo.get_cabins_by_dates(
         start_date, end_date, location, nr_guests, skip, limit
     )

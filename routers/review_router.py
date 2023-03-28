@@ -9,12 +9,9 @@ from db import get_db
 from models import orm_models, dto_models
 from repository.review_repository import ReviewRepository
 from utils.auth_user import User, authorize_user
+from utils.commons import pagination_params
 
 router = APIRouter(prefix="/reviews", tags=["reviews"])
-
-
-def pagination_params(page: int = 1, size: int = 10):
-    return (page - 1) * size, size
 
 
 def review_repository(db=Depends(get_db)):
