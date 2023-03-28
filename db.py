@@ -1,16 +1,16 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-user = "app"
-password = "app"
-host = "localhost"
-port = 5432
-database = "mydbname"
 
-url = "postgresql://{0}:{1}@{2}:{3}/{4}".format(user, password, host, port, database)
+def get_db_url(
+    user="app", password="app", host="localhost", port=5432, database="mydbname"
+):
+    return "postgresql://{0}:{1}@{2}:{3}/{4}".format(
+        user, password, host, port, database
+    )
 
 
-engine = create_engine(url)
+engine = create_engine(get_db_url())
 # encourage placing configuration options for creating new Session objects in just one place
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
