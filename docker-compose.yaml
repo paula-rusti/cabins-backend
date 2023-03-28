@@ -13,6 +13,6 @@ services:
       - POSTGRES_PASSWORD=app
       - POSTGRES_DB=mydbname
     volumes:
-      - ./volumes/data/db:/var/lib/postgresql/data
+      - ./postgres/volumes/data/db:/var/lib/postgresql/data
     ports:
        - 5432:5432
