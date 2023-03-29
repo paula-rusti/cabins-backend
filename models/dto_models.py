@@ -5,7 +5,7 @@ from typing import List
 from pydantic import BaseModel
 
 
-# use inheritance
+# TODO use inheritance
 class CabinCreate(BaseModel):
     user_id: int
     name: str
