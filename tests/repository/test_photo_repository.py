@@ -75,3 +75,28 @@ def test_get_photo_by_id(photo_repository, setup):
     )  # does not exist in the and the get function should return None
     assert retrieved_photo.id == photo_id
     assert invalid_photo is None
+
+
+def test_get_photos_of_cabin(photo_repository, setup):
+    expected_photos_array = []
+    principal = True
+    for i in range(1, 3 + 1):   # add 3 photos for cabin 1
+        if i % 2 == 0:
+            principal = False
+
+        statement = (
+            insert(Photo)
+            .values(cabin_id=1, content=bytearray(), principal=principal)
+            .returning(Photo.id)
+        )
+        photo_id = photo_repository.db.execute(statement).first()[0]
+        expected_photos_array.append({"id": photo_id, "principal": principal})
+    photo_repository.db.commit()
+
+    retrieved_photos = photo_repository.get_photos_of_cabin(1)      # arr[{id: int, principal: bool}]
+    max_len = max(len(retrieved_photos), len(expected_photos_array))
+    for i in range(max_len):
+        assert retrieved_photos[i] == expected_photos_array[i]
+
+
+
