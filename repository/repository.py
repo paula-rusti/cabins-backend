@@ -37,3 +37,4 @@ class AbstractReviewRepository(abc.ABC):
     @abc.abstractmethod
     def get_reviews_by_tourist(self, user_id, skip, limit):
         raise NotImplementedError
+

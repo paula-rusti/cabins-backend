@@ -21,7 +21,7 @@ def upload_picture(
     photo_repo=Depends(photo_repository),
 ):
     """uploads a photo of a corresponding cabin"""
-    photo_entry = models.dto_models.PhotoCreate(
+    photo_entry = models.dto_models.PhotoIn(
         cabin_id=cabin_id, content=file.file.read(), principal=principal
     )
     photo_repo.add(photo_entry)

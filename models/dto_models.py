@@ -5,7 +5,7 @@ from typing import List
 from pydantic import BaseModel
 
 
-# use inheritance
+# TODO use inheritance
 class CabinCreate(BaseModel):
     user_id: int
     name: str
@@ -36,17 +36,14 @@ class Cabin(BaseModel):
         orm_mode = True
 
 
-class PhotoCreate(BaseModel):  # sent from the api
+class PhotoIn(BaseModel):  # sent to the api
     cabin_id: int
     content: bytes
     principal: bool = False
 
 
-class Photo(BaseModel):  # returned from the api
+class Photo(PhotoIn):  # returned from the api
     id: int
-    cabin_id: int
-    content: bytes
-    principal: bool = False
 
     class Config:
         orm_mode = True
