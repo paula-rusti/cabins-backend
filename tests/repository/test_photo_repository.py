@@ -97,6 +97,3 @@ def test_get_photos_of_cabin(photo_repository, setup):
     max_len = max(len(retrieved_photos), len(expected_photos_array))
     for i in range(max_len):
         assert retrieved_photos[i] == expected_photos_array[i]
-
-
-

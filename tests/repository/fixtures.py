@@ -2,10 +2,11 @@ import secrets
 
 import pytest
 from sqlalchemy import create_engine
-from models.orm_models import Base
-from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.orm import sessionmaker
 
 from db import get_db_url
+from models.orm_models import Base
+from repository.cabins_repository import CabinsRepository
 from repository.photo_repository import PhotoRepository
 
 
@@ -51,3 +52,8 @@ def database():
 @pytest.fixture()
 def photo_repository(database):
     return PhotoRepository(database)
+
+
+@pytest.fixture()
+def cabin_repository(database):
+    return CabinsRepository(database)

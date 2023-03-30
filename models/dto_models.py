@@ -5,8 +5,8 @@ from typing import List
 from pydantic import BaseModel
 
 
-# TODO use inheritance
-class CabinCreate(BaseModel):
+# TODO use inheritance for all models
+class CabinIn(BaseModel):
     user_id: int
     name: str
     description: str
@@ -19,18 +19,8 @@ class CabinCreate(BaseModel):
     nr_bathrooms: int
 
 
-class Cabin(BaseModel):
+class Cabin(CabinIn):
     id: int
-    user_id: int
-    name: str
-    description: str
-    location: str
-    price: float
-    facilities: List[int]
-    capacity: int
-    nr_beds: int
-    nr_rooms: int
-    nr_bathrooms: int
 
     class Config:
         orm_mode = True

@@ -6,7 +6,7 @@ from fastapi.encoders import jsonable_encoder
 from starlette.responses import JSONResponse
 
 from db import get_db
-from models.dto_models import CabinCreate
+from models.dto_models import CabinIn
 from repository.cabins_repository import CabinsRepository
 from utils.commons import pagination_params
 
@@ -22,7 +22,7 @@ def cabins_repository(db=Depends(get_db)):
 
 @router.post("/add")
 def add_cabin(
-    cabin: CabinCreate, cabins_repo: CabinsRepository = Depends(cabins_repository)
+    cabin: CabinIn, cabins_repo: CabinsRepository = Depends(cabins_repository)
 ):
     cabins_repo.add(cabin)
 
