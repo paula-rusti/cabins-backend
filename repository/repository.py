@@ -3,7 +3,7 @@ import abc
 
 class AbstractCabinsRepository(abc.ABC):
     @abc.abstractmethod
-    def add(self, item):
+    def add(self, cabin, user_id):
         raise NotImplementedError
 
     # @abc.abstractmethod
@@ -37,4 +37,3 @@ class AbstractReviewRepository(abc.ABC):
     @abc.abstractmethod
     def get_reviews_by_tourist(self, user_id, skip, limit):
         raise NotImplementedError
-

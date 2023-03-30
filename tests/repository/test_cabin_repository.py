@@ -28,7 +28,7 @@ def setup(cabin_repository):
 def test_add_photo(cabin_repository, setup):
     # call the function to be tested
     test_cabin = CabinIn(
-        user_id=1,
+        user_id=None,
         name="Test Cabin",
         description="Dummy description",
         location="Dummy location",
@@ -37,12 +37,14 @@ def test_add_photo(cabin_repository, setup):
         capacity=5,
         nr_beds=3,
         nr_rooms=3,
-        nr_bathrooms=2
+        nr_bathrooms=2,
     )
-    test_cabin_row_id = cabin_repository.add(test_cabin)
+    test_cabin_row_id = cabin_repository.add(test_cabin, user_id=1)
 
     # select from the db so we can make the assert
     get_inserted_cabin_statement = select(Cabin).where(Cabin.id == test_cabin_row_id)
-    retrieved_cabin = cabin_repository.db.execute(get_inserted_cabin_statement).first()[0]
+    retrieved_cabin = cabin_repository.db.execute(get_inserted_cabin_statement).first()[
+        0
+    ]
 
     assert retrieved_cabin.id == test_cabin_row_id

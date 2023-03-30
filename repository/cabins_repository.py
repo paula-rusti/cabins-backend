@@ -47,19 +47,23 @@ class CabinsRepository(AbstractCabinsRepository):
     def __init__(self, db: Session):
         self.db = db
 
-    def add(self, cabin: CabinIn):
-        statement = insert(Cabin).values(
-            user_id=cabin.user_id,
-            name=cabin.name,
-            description=cabin.description,
-            location=cabin.location,
-            facilities=cabin.facilities,
-            price=cabin.price,
-            capacity=cabin.capacity,
-            nr_beds=cabin.nr_beds,
-            nr_rooms=cabin.nr_rooms,
-            nr_bathrooms=cabin.nr_bathrooms,
-        ).returning(Cabin.id)
+    def add(self, cabin: CabinIn, user_id: int):
+        statement = (
+            insert(Cabin)
+            .values(
+                user_id=user_id,  # taken from the header
+                name=cabin.name,
+                description=cabin.description,
+                location=cabin.location,
+                facilities=cabin.facilities,
+                price=cabin.price,
+                capacity=cabin.capacity,
+                nr_beds=cabin.nr_beds,
+                nr_rooms=cabin.nr_rooms,
+                nr_bathrooms=cabin.nr_bathrooms,
+            )
+            .returning(Cabin.id)
+        )
         cabin_id = self.db.execute(statement).first()[0]
         self.db.commit()
         return cabin_id
@@ -79,13 +83,13 @@ class CabinsRepository(AbstractCabinsRepository):
         return self.db.query(models.orm_models.Cabin).count()
 
     def get_cabins_by_dates(
-            self,
-            start_date: datetime.date,
-            end_date: datetime.date,
-            location: str = None,
-            nr_guests: int = None,
-            skip: int = 0,
-            limit: int = 0,
+        self,
+        start_date: datetime.date,
+        end_date: datetime.date,
+        location: str = None,
+        nr_guests: int = None,
+        skip: int = 0,
+        limit: int = 0,
     ):
         statement_text = (
             "SELECT * from cabin WHERE id NOT IN (SELECT cabin_id FROM booking WHERE "

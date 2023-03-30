@@ -11,11 +11,15 @@ class PhotoRepository(AbstractPhotoRepository):
         self.db = db
 
     def add(self, photo: dto_models.PhotoIn):
-        statement = insert(Photo).values(
-            cabin_id=photo.cabin_id,
-            content=photo.content,
-            principal=photo.principal,
-        ).returning(Photo.id)
+        statement = (
+            insert(Photo)
+            .values(
+                cabin_id=photo.cabin_id,
+                content=photo.content,
+                principal=photo.principal,
+            )
+            .returning(Photo.id)
+        )
         photo_id = self.db.execute(statement).first()[0]
         self.db.commit()
         return photo_id

@@ -7,7 +7,7 @@ from pydantic import BaseModel
 
 # TODO use inheritance for all models
 class CabinIn(BaseModel):
-    user_id: int
+    user_id: int | None  # keep this field for using this model when testing the db
     name: str
     description: str
     location: str

@@ -1,13 +1,15 @@
 import datetime
+import sys
 from typing import Union
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from starlette.responses import JSONResponse
 
 from db import get_db
 from models.dto_models import CabinIn
 from repository.cabins_repository import CabinsRepository
+from utils.auth_user import authorize_user, User
 from utils.commons import pagination_params
 
 router = APIRouter(prefix="/cabins", tags=["cabins"])
@@ -20,11 +22,20 @@ def cabins_repository(db=Depends(get_db)):
     return CabinsRepository(db=db)
 
 
-@router.post("/add")
+@router.post("/")
 def add_cabin(
-    cabin: CabinIn, cabins_repo: CabinsRepository = Depends(cabins_repository)
+    cabin: CabinIn,
+    cabins_repo: CabinsRepository = Depends(cabins_repository),
+    user: User = Depends(authorize_user),
 ):
-    cabins_repo.add(cabin)
+    cabin_id = -1
+    try:
+        cabin_id = cabins_repo.add(cabin, user.user_id)  # user_id is taken from header
+    except Exception as e:
+        type, value, traceback = sys.exc_info()
+        detail = value.args[0]
+        raise HTTPException(status_code=500, detail=f"Error: {detail}")
+    return JSONResponse(status_code=200, content={"cabin_id": cabin_id})
 
 
 @router.get("/all")
