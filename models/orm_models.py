@@ -17,7 +17,7 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import ARRAY, BYTEA
 from sqlalchemy.orm import relationship
 
-from db import Base
+from utils.db import Base
 
 
 class Role(enum.Enum):

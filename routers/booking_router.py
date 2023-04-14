@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 import models.orm_models
-from db import get_db
+from utils.db import get_db
 import models.dto_models, models.orm_models
 
 router = APIRouter(prefix="/bookings", tags=["bookings"])

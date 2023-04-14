@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 import models.orm_models
-from db import get_db
+from utils.db import get_db
 
 router = APIRouter(prefix="/users", tags=["users"])
 # route order matters, wildcards should be placed last

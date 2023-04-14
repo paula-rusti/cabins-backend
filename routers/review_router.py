@@ -1,11 +1,9 @@
-import dataclasses
-
-from fastapi import APIRouter, Depends, HTTPException, Header
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 from starlette import status
 
-from db import get_db
+from utils.db import get_db
 from models import orm_models, dto_models
 from repository.review_repository import ReviewRepository
 from utils.auth_user import User, authorize_user

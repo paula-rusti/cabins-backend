@@ -1,7 +1,6 @@
 import datetime
-from typing import List, Optional
+from typing import List
 
-from pydantic import BaseModel, validator
 from sqlalchemy import text, insert
 from sqlalchemy.orm import Session
 
@@ -9,38 +8,6 @@ import models.orm_models
 from models.dto_models import CabinIn
 from models.orm_models import Cabin
 from repository.repository import AbstractCabinsRepository
-
-
-# class CabinFilters(BaseModel):
-#     location: Optional[List[str]]
-#     price: Optional[dict]  # dict = {min/max: value} or {min: value, max: value}
-#
-#     @validator("location")
-#     def locations_is_valid_array(cls, v):
-#         if not all(loc in locations for loc in v):
-#             raise ValueError(
-#                 "location must be an array of strings representing valid counties"
-#             )
-#         return v
-#
-#     @validator("price")
-#     def price_range_is_valid(cls, v, values, **kwargs):
-#         def valid_number(n):
-#             return isinstance(n, int) or isinstance(n, float) and n > 0
-#
-#         def is_sublist(subset, superset):
-#             return all(x in superset for x in subset)
-#
-#         if v is {}:
-#             return v
-#         if not (
-#             is_sublist(list(v.keys()), ["min", "max"])
-#             and all(valid_number(v[key]) for key in v)
-#         ):
-#             raise ValueError("price object does not respect the required schema")
-#         if "min" in v and "max" in v and not v["min"] <= v["max"]:
-#             raise ValueError("min price must be less than or equal to max price")
-#         return v
 
 
 class CabinsRepository(AbstractCabinsRepository):
@@ -82,54 +49,73 @@ class CabinsRepository(AbstractCabinsRepository):
     def get_count(self):
         return self.db.query(models.orm_models.Cabin).count()
 
-    def get_cabins_by_dates(
-        self,
-        start_date: datetime.date,
-        end_date: datetime.date,
-        location: str = None,
-        nr_guests: int = None,
-        skip: int = 0,
-        limit: int = 0,
-    ):
-        statement_text = (
-            "SELECT * from cabin WHERE id NOT IN (SELECT cabin_id FROM booking WHERE "
-            "(start_date  >= :start_date_value AND start_date <= :end_date_value) OR "
-            "(end_date  >= :start_date_value AND end_date <= :end_date_value) OR "
-            "(start_date  <= :start_date_value AND end_date >= :end_date_value))"
-        )
-        params_dict = {"start_date_value": start_date, "end_date_value": end_date}
-        if location:
-            location_query = " AND location LIKE '%' || LOWER(:location_value) || '%'"
-            statement_text += location_query
-            params_dict["location_value"] = location
-        if nr_guests:
-            guests_query = " AND capacity >= :nr_guests_value"
-            statement_text += guests_query
-            params_dict["nr_guests_value"] = nr_guests
-        statement_text += " ORDER BY id OFFSET :offset_value LIMIT :limit_value"
-        params_dict["offset_value"] = skip
-        params_dict["limit_value"] = limit
-        statement_text += ";"
-        statement = text(statement_text)
-        statement = statement.bindparams(**params_dict)
-        result = self.db.execute(statement).all()
-        return result
+    def _is_sublist(self, lst1, lst2):
+        return set(lst2) <= set(lst1)
 
-    # def get(self, filters: CabinFilters):
-    #     # build query based on filters
-    #     statement = select(CabinTable)
-    #     if filters.location:
-    #         statement = statement.where(
-    #             or_(*[CabinTable.location == location for location in filters.location])
-    #         )
-    #     if filters.price:
-    #         if "min" in filters.price:
-    #             statement = statement.where(CabinTable.price >= filters.price["min"])
-    #         if "max" in filters.price:
-    #             statement = statement.where(CabinTable.price <= filters.price["max"])
-    #     with self.session as session:
-    #         results = session.execute(statement.order_by(CabinTable.id))
-    #         cabin_list = []
-    #         for cabin in results:
-    #             cabin_list.append(cabin[0])
-    #         return cabin_list
+    def get_filtered_cabins(
+        self,
+        location: str | None,
+        capacity: int | None,
+        rating: int | None,
+        start_date: datetime.date | None,
+        end_date: datetime.date | None,
+        min_price: int | None,
+        max_price: int | None,
+        has_facility: List[str] | None,
+        skip: int,
+        limit: int
+    ):
+        """
+        varianta tiganeasca care le ia pe toate din db si face filtrarea la nivel de python, nu din sql query
+        """
+        all_cabins = self.get_all(skip, limit)
+
+        filtered = all_cabins
+        if location is not None:
+            filtered = list(filter(lambda cabin: cabin.location == location, filtered))
+        if capacity is not None:
+            filtered = list(filter(lambda cabin: cabin.capacity >= capacity, filtered))
+        if min_price:
+            filtered = list(filter(lambda cabin: cabin.price >= min_price, filtered))
+        if max_price:
+            filtered = list(filter(lambda cabin: cabin.price <= max_price, filtered))
+
+        # now filter by included facilities
+        if has_facility is not None:
+            filtered_by_included_facilities = []
+            for cabin in filtered:
+                current_facilities = [list(facility.split("_"))[0] for facility in cabin.facilities]  # list = ['spa', 'spa/description', 'wifi', 'wifi/desc']
+                if self._is_sublist(current_facilities, has_facility):
+                    filtered_by_included_facilities.append(cabin)
+            filtered = filtered_by_included_facilities
+
+        # now make another query to retrieve all reviews of all cabins and compute their rating
+        if rating is not None:
+            filtered_by_rating = []
+            reviews = self.db.query(models.orm_models.Review).all()
+            for cabin in filtered:
+                reviews_of_cabin = list(filter(lambda review: review.cabin_id == cabin.id, reviews))
+                if len(reviews_of_cabin) == 0:
+                    continue
+                grades_sum = sum([review.grade for review in reviews_of_cabin])
+                computed_rating = grades_sum / (len(reviews_of_cabin))
+                if computed_rating >= rating:
+                    filtered_by_rating.append(cabin)
+            filtered = filtered_by_rating
+
+        # now get only the cabins which are free in the specified period
+        if start_date and end_date:
+            params_dict = {"start_date_value": start_date, "end_date_value": end_date}
+            statement_text = (
+                "SELECT id from cabin WHERE id NOT IN (SELECT cabin_id FROM booking WHERE "
+                "(start_date  >= :start_date_value AND start_date <= :end_date_value) OR "
+                "(end_date  >= :start_date_value AND end_date <= :end_date_value) OR "
+                "(start_date  <= :start_date_value AND end_date >= :end_date_value))"
+            )
+            statement = text(statement_text)
+            statement = statement.bindparams(**params_dict)
+            free_cabins = [row[0] for row in self.db.execute(statement).all()]
+            free_and_filtered_cabins = [cabin for cabin in filtered if cabin in free_cabins]
+            filtered = free_and_filtered_cabins
+
+        return filtered

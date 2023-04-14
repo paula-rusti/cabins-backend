@@ -2,7 +2,7 @@ from fastapi import APIRouter, UploadFile, Depends
 from starlette.responses import Response
 
 import models.dto_models
-from db import get_db
+from utils.db import get_db
 from repository.photo_repository import PhotoRepository
 
 

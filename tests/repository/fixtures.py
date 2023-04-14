@@ -4,7 +4,7 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from db import get_db_url
+from utils.db import get_db_url
 from models.orm_models import Base
 from repository.cabins_repository import CabinsRepository
 from repository.photo_repository import PhotoRepository
