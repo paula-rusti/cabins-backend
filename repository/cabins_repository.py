@@ -54,6 +54,7 @@ class CabinsRepository(AbstractCabinsRepository):
 
     def get_filtered_cabins(
         self,
+        user_id: int,
         location: str | None,
         capacity: int | None,
         rating: int | None,
@@ -69,8 +70,11 @@ class CabinsRepository(AbstractCabinsRepository):
         varianta tiganeasca care le ia pe toate din db si face filtrarea la nivel de python, nu din sql query
         """
         all_cabins = self.get_all(skip, limit)
-
         filtered = all_cabins
+
+        if user_id:
+            filtered = list(filter(lambda cabin: cabin.user_id == user_id, filtered))
+
         if location is not None:
             filtered = list(filter(lambda cabin: cabin.location == location, filtered))
         if capacity is not None:

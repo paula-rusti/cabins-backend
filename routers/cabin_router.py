@@ -22,6 +22,7 @@ def cabins_repository(db=Depends(get_db)):
 
 @router.get("")
 def retrieve_cabins(
+    user_id: int = Query(None),
     location: Optional[str] = Query(None),
     capacity: Optional[int] = Query(None),
     rating: Optional[int] = Query(None),
@@ -33,11 +34,11 @@ def retrieve_cabins(
     pagination=Depends(pagination_params),
     cabins_repo: CabinsRepository = Depends(cabins_repository),
 ):
-    print(f" type {type(start_date)}")
-    cabin_rows = []
     skip, limit = pagination
+
     if not (
-        location
+        user_id
+        or location
         or capacity
         or rating
         or start_date
@@ -49,6 +50,7 @@ def retrieve_cabins(
         cabin_rows = cabins_repo.get_all(skip, limit)
     else:   # filtered search
         cabin_rows = cabins_repo.get_filtered_cabins(
+            user_id,
             location,
             capacity,
             rating,
