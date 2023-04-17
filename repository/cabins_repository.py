@@ -64,7 +64,7 @@ class CabinsRepository(AbstractCabinsRepository):
         max_price: int | None,
         has_facility: List[str] | None,
         skip: int,
-        limit: int
+        limit: int,
     ):
         """
         varianta tiganeasca care le ia pe toate din db si face filtrarea la nivel de python, nu din sql query
@@ -88,7 +88,9 @@ class CabinsRepository(AbstractCabinsRepository):
         if has_facility is not None:
             filtered_by_included_facilities = []
             for cabin in filtered:
-                current_facilities = [list(facility.split("_"))[0] for facility in cabin.facilities]  # list = ['spa', 'spa/description', 'wifi', 'wifi/desc']
+                current_facilities = [
+                    list(facility.split("_"))[0] for facility in cabin.facilities
+                ]  # list = ['spa', 'spa/description', 'wifi', 'wifi/desc']
                 if self._is_sublist(current_facilities, has_facility):
                     filtered_by_included_facilities.append(cabin)
             filtered = filtered_by_included_facilities
@@ -98,7 +100,9 @@ class CabinsRepository(AbstractCabinsRepository):
             filtered_by_rating = []
             reviews = self.db.query(models.orm_models.Review).all()
             for cabin in filtered:
-                reviews_of_cabin = list(filter(lambda review: review.cabin_id == cabin.id, reviews))
+                reviews_of_cabin = list(
+                    filter(lambda review: review.cabin_id == cabin.id, reviews)
+                )
                 if len(reviews_of_cabin) == 0:
                     continue
                 grades_sum = sum([review.grade for review in reviews_of_cabin])
@@ -119,7 +123,9 @@ class CabinsRepository(AbstractCabinsRepository):
             statement = text(statement_text)
             statement = statement.bindparams(**params_dict)
             free_cabins = [row[0] for row in self.db.execute(statement).all()]
-            free_and_filtered_cabins = [cabin for cabin in filtered if cabin in free_cabins]
+            free_and_filtered_cabins = [
+                cabin for cabin in filtered if cabin in free_cabins
+            ]
             filtered = free_and_filtered_cabins
 
-        return filtered[skip:skip+limit]
+        return filtered[skip : skip + limit]

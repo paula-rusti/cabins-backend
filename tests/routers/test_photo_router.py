@@ -44,5 +44,3 @@ def test_get_photo(test_client):
     assert response.status_code == 200
     assert response.text == "poza fake"
     mock_photo_repository.get_by_id.assert_called_with(1555)
-
-

@@ -68,3 +68,22 @@ class Review(ReviewIn):
 
     class Config:
         orm_mode = True
+
+
+class MessageResponse(BaseModel):
+    message: str
+
+
+class UserLogin(BaseModel):
+    email: str
+    password_hash: str
+    role: str = "tourist"
+
+
+class UserRegister(BaseModel):
+    full_name: str
+    username: str
+    email: str
+    role: str = "tourist"
+    phone_number: str
+    password_hash: str

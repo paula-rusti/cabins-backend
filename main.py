@@ -8,6 +8,7 @@ from routers.booking_router import router as booking_router
 from routers.cabin_router import router as cabin_router
 from routers.photo_router import router as photo_router
 from routers.review_router import router as review_router
+from routers.user_router import router as user_router
 
 Base.metadata.create_all(
     bind=engine
@@ -27,6 +28,7 @@ def create_app():
     app.include_router(cabin_router)
     app.include_router(booking_router)
     app.include_router(review_router)
+    app.include_router(user_router)
     return app
 
 

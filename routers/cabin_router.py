@@ -48,7 +48,7 @@ def retrieve_cabins(
         or max_price
     ):  # retrieve all cabins
         cabin_rows = cabins_repo.get_all(skip, limit)
-    else:   # filtered search
+    else:  # filtered search
         cabin_rows = cabins_repo.get_filtered_cabins(
             user_id,
             location,
@@ -107,4 +107,3 @@ def get_cabin_by_id(
         raise HTTPException(status_code=404, detail="Cabin not found")
     else:
         return cabin
-

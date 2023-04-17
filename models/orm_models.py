@@ -53,6 +53,7 @@ class User(Base):
     username = Column(String(50))
     full_name = Column(String(50))  # separated by spaces
     email_address = Column(String(50))  # needs validation
+    password_hash = Column(String(50))
     phone_number = Column(String(15))
     about_me = Column(String(500))
     profile_pic = Column(BYTEA)

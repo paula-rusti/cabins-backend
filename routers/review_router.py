@@ -24,7 +24,8 @@ def add_review(
 ):
     """The review can be inserted if the user booked that cabin in the past
     and the user did not review that cabin previously
-    This route will be authenticated and the user id is extracted from a header for mocking demo"""
+    This route will be authenticated and the user id is extracted from a header for mocking demo
+    """
     inserted = repo.add_review(review=review, user_id=user.user_id)
     if not inserted:
         raise HTTPException(
