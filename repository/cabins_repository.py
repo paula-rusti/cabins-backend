@@ -69,7 +69,7 @@ class CabinsRepository(AbstractCabinsRepository):
         """
         varianta tiganeasca care le ia pe toate din db si face filtrarea la nivel de python, nu din sql query
         """
-        all_cabins = self.get_all(skip, limit)
+        all_cabins = self.db.query(models.orm_models.Cabin).all()
         filtered = all_cabins
 
         if user_id:
@@ -122,4 +122,4 @@ class CabinsRepository(AbstractCabinsRepository):
             free_and_filtered_cabins = [cabin for cabin in filtered if cabin in free_cabins]
             filtered = free_and_filtered_cabins
 
-        return filtered
+        return filtered[skip:skip+limit]
