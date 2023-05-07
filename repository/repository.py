@@ -1,5 +1,7 @@
 import abc
 
+from models import dto_models
+
 
 class AbstractCabinsRepository(abc.ABC):
     @abc.abstractmethod
@@ -21,7 +23,15 @@ class AbstractCabinsRepository(abc.ABC):
 
 class AbstractPhotoRepository(abc.ABC):
     @abc.abstractmethod
-    def add(self, item):
+    def add(self, item: dto_models.PhotoIn):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_by_id(self, _id: int):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_by_cabin(self, cabin_id: int):
         raise NotImplementedError
 
 

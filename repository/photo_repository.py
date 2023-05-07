@@ -31,7 +31,7 @@ class PhotoRepository(AbstractPhotoRepository):
             .first()
         )
 
-    def get_photos_of_cabin(self, cabin_id):
+    def get_by_cabin(self, cabin_id):
         # returns photos of a certain cabin sorted by principal first
         # format arr[{id: int, principal: bool}]
         results = (

@@ -29,7 +29,7 @@ class Cabin(CabinIn):
 class PhotoIn(BaseModel):  # sent to the api
     cabin_id: int
     content: bytes
-    principal: bool = False
+    principal: bool = False     # also gonna be ignored but not removed yet for backwards compatibility
 
 
 class Photo(PhotoIn):  # returned from the api

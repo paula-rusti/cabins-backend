@@ -93,7 +93,7 @@ def test_get_photos_of_cabin(photo_repository, setup):
         expected_photos_array.append({"id": photo_id, "principal": principal})
     photo_repository.db.commit()
 
-    retrieved_photos = photo_repository.get_photos_of_cabin(
+    retrieved_photos = photo_repository.get_by_cabin(
         1
     )  # arr[{id: int, principal: bool}]
     max_len = max(len(retrieved_photos), len(expected_photos_array))
