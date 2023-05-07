@@ -72,7 +72,7 @@ class Photo(Base):
     id = Column(Integer, primary_key=True, index=True)
     cabin_id = Column(Integer, ForeignKey("cabin.id"), nullable=False)
     content = Column(BYTEA)
-    principal = Column(Boolean, nullable=False)
+    principal = Column(Boolean, nullable=False)     # gonna be ignored and eventually removed from the model
 
 
 class Booking(Base):
