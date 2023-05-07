@@ -10,7 +10,7 @@ def photo_repository(db=Depends(get_db)):
     return PhotoRepository(db=db)
 
 
-router = APIRouter(prefix="/pictures", tags=["pictures"])
+router = APIRouter(prefix="/photos", tags=["photos"])
 
 
 @router.post("")
