@@ -24,11 +24,11 @@ def create_app():
         allow_methods=["*"],
         allow_headers=["*"],
     )
-    app.include_router(photo_router)
+    app.include_router(user_router)
     app.include_router(cabin_router)
+    app.include_router(photo_router)
     app.include_router(booking_router)
     app.include_router(review_router)
-    app.include_router(user_router)
     return app
 
 
