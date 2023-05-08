@@ -91,8 +91,9 @@ class Review(Base):
     __tablename__ = "review"
 
     id = Column(Integer, primary_key=True, index=True)
-    cabin_id = Column(Integer, ForeignKey("cabin.id"), nullable=False)
     user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
+    cabin_id = Column(Integer, ForeignKey("cabin.id"), nullable=False)
+    booking_id = Column(Integer, ForeignKey("booking.id"), nullable=False)
     created = Column(DateTime(timezone=True), server_default=func.now())
     grade = Column(SMALLINT, nullable=False)
     description = Column(String(2000))

@@ -45,5 +45,13 @@ class AbstractReviewRepository(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_reviews_by_tourist(self, user_id, skip, limit):
+    def get_reviews_of_tourist(self, user_id, skip, limit):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_review_of_booking(self, user_id):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_review(self, _id):
         raise NotImplementedError

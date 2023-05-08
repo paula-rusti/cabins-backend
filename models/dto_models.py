@@ -57,6 +57,7 @@ class Booking(BookingCreate):
 
 class ReviewIn(BaseModel):
     cabin_id: int
+    booking_id: int
     grade: float
     description: str
 
