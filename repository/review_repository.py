@@ -1,17 +1,32 @@
-from sqlalchemy import text
+from sqlalchemy import insert
 from sqlalchemy.orm import Session
 
+import models
+from models import orm_models
+from models.dto_models import ReviewIn
+from models.orm_models import Review
 from repository.repository import AbstractReviewRepository
-from models import dto_models, orm_models
 
 
 class ReviewRepository(AbstractReviewRepository):
     def __init__(self, db: Session):
         self.db = db
 
-    def add_review(self, review, user_id):
-        # validate that the specified booking exist and only then add to db
-        pass
+    def add_review(self, review: ReviewIn, user_id):
+        statement = (
+            insert(Review)
+            .values(
+                user_id=user_id,
+                cabin_id=review.cabin_id,
+                booking_id=review.booking_id,
+                grade=review.grade,
+                description=review.description
+            )
+            .returning(Review.id)
+        )
+        review_id = self.db.execute(statement).first()[0]
+        self.db.commit()
+        return review_id
 
     def get_reviews_of_cabin(self, cabin_id, skip, limit):
         return (
@@ -32,7 +47,12 @@ class ReviewRepository(AbstractReviewRepository):
         )
 
     def get_review_of_booking(self, user_id):
+        # TODO implement and use this instead of session in review router
         pass
 
     def get_review(self, _id):
-        pass
+        return (
+            self.db.query(models.orm_models.Review)
+            .filter(models.orm_models.Review.id == _id)
+            .first()
+        )
