@@ -35,6 +35,7 @@ class AbstractPhotoRepository(abc.ABC):
         raise NotImplementedError
 
 
+# TODO add reeturn types
 class AbstractReviewRepository(abc.ABC):
     @abc.abstractmethod
     def add_review(self, review, user_id):
