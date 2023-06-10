@@ -22,6 +22,8 @@ class CabinsRepository(AbstractCabinsRepository):
                 name=cabin.name,
                 description=cabin.description,
                 location=cabin.location,
+                latitude=cabin.latitude,
+                longitude=cabin.longitude,
                 facilities=cabin.facilities,
                 price=cabin.price,
                 capacity=cabin.capacity,

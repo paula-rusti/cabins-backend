@@ -11,6 +11,8 @@ class CabinIn(BaseModel):
     name: str
     description: str
     location: str
+    latitude: float
+    longitude: float
     price: float
     facilities: List[int]
     capacity: int

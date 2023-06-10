@@ -12,7 +12,7 @@ from sqlalchemy import (
     DateTime,
     Boolean,
     SMALLINT,
-    Date,
+    Date, Numeric,
 )
 from sqlalchemy.dialects.postgresql import ARRAY, BYTEA
 from sqlalchemy.orm import relationship
@@ -33,6 +33,8 @@ class Cabin(Base):
     name = Column(String(50), index=True, nullable=False)
     description = Column(String(500))
     location = Column(String(100), nullable=False)
+    latitude = Column(Numeric(precision=18, scale=15))
+    longitude = Column(Numeric(precision=18, scale=15))
     facilities = Column(ARRAY(Integer))
     price = Column(Float, nullable=False)
     capacity = Column(SMALLINT, nullable=False)
@@ -97,3 +99,5 @@ class Review(Base):
     created = Column(DateTime(timezone=True), server_default=func.now())
     grade = Column(SMALLINT, nullable=False)
     description = Column(String(2000))
+
+
