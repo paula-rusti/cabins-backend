@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, UploadFile
 from fastapi.encoders import jsonable_encoder
 from fastapi.security import HTTPBearer
 from fastapi_jwt_auth import AuthJWT
@@ -102,3 +102,35 @@ def login_user(
     )
 
 
+@router.put("/{username}/description", response_model=MessageResponse)
+def update_user_description(username: str, description: str, db: Session = Depends(get_db)):
+    db_user = db.query(models.orm_models.User).filter(models.orm_models.User.username == username).first()
+    if db_user is None:
+        return JSONResponse(
+            status_code=400,
+            content=jsonable_encoder(
+                MessageResponse(
+                    message="User with given username does not exist."
+                )
+            ),
+        )
+    db_user.about_me = description
+    db.commit()
+    return MessageResponse(message="User description updated.")
+
+
+@router.put("/{username}/profile_picture", response_model=MessageResponse)
+def update_user_profile_picture(username: str, profile_picture: UploadFile, db: Session = Depends(get_db)):
+    db_user = db.query(models.orm_models.User).filter(models.orm_models.User.username == username).first()
+    if db_user is None:
+        return JSONResponse(
+            status_code=400,
+            content=jsonable_encoder(
+                MessageResponse(
+                    message="User with given username does not exist."
+                )
+            ),
+        )
+    db_user.profile_pic = profile_picture.file.read()
+    db.commit()
+    return MessageResponse(message="User profile picture updated.")
