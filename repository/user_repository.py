@@ -36,7 +36,7 @@ class UsersRepository:
         statement = insert(User).values(
             role=user.role,
             username=user.username,
-            password_hash=user.password_hash,
+            password=user.password,
             full_name=user.full_name,
             email_address=user.email,
             phone_number=user.phone_number,

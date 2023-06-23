@@ -79,7 +79,7 @@ class MessageResponse(BaseModel):
 
 class UserLogin(BaseModel):
     email: str
-    password_hash: str
+    password: str
     role: str = "tourist"
 
 
@@ -89,4 +89,4 @@ class UserRegister(BaseModel):
     email: str
     role: str = "tourist"
     phone_number: str
-    password_hash: str
+    password: str

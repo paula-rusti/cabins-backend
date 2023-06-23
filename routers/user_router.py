@@ -4,6 +4,8 @@ from fastapi_jwt_auth import AuthJWT
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
+from passlib.context import CryptContext
+
 
 import models.orm_models
 from models.dto_models import UserLogin, UserRegister, MessageResponse
@@ -13,6 +15,15 @@ from utils.db import get_db
 router = APIRouter(prefix="/users", tags=["users"])
 # route order matters, wildcards should be placed last
 
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+
+def verify_password(plain_password, hashed_password):
+    return pwd_context.verify(plain_password, hashed_password)
+
+
+def get_password_hash(password):
+    return pwd_context.hash(password)
 
 @AuthJWT.load_config
 class AuthJwtSettings(BaseModel):
@@ -49,7 +60,7 @@ def register_user(
                 )
             ),
         )
-
+    user.password = get_password_hash(user.password)
     repo.insert_user(user)
     return MessageResponse(message="User registered")
 
@@ -65,7 +76,7 @@ def login_user(
     )
     db_user = repo.get_user_by_id_and_role(db_user_id, user.role)
     if db_user:
-        if db_user.password_hash != user.password_hash:
+        if not verify_password(user.password, db_user.password):
             return JSONResponse(
                 status_code=401,
                 content=jsonable_encoder(MessageResponse(message="Login failed.")),

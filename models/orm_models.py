@@ -53,6 +53,7 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     role = Column(Enum(Role))
     username = Column(String(50))
+    password = Column(String(200))
     full_name = Column(String(50))  # separated by spaces
     email_address = Column(String(50))  # needs validation
     password_hash = Column(String(50))
