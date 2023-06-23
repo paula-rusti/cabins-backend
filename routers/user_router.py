@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends
 from fastapi.encoders import jsonable_encoder
+from fastapi.security import HTTPBearer
 from fastapi_jwt_auth import AuthJWT
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -17,6 +18,14 @@ router = APIRouter(prefix="/users", tags=["users"])
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+http_bearer = HTTPBearer()
+
+@router.get("/me")
+def get_current_user(authorize: AuthJWT = Depends(), token=Depends(http_bearer)):
+    authorize.jwt_required()
+
+    current_user = authorize.get_jwt_subject()
+    return {"user_email": current_user, "properties": authorize.get_raw_jwt()}
 
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
@@ -81,7 +90,9 @@ def login_user(
                 status_code=401,
                 content=jsonable_encoder(MessageResponse(message="Login failed.")),
             )
-        access_token = authorize.create_access_token(subject=user.email)
+        access_token = authorize.create_access_token(subject=user.email, user_claims={
+            "role": user.role
+        })
         refresh_token = authorize.create_refresh_token(subject=user.email)
         return LoginResponse(access_token=access_token, refresh_token=refresh_token)
     # login failed
@@ -89,3 +100,5 @@ def login_user(
         status_code=401,
         content=jsonable_encoder(MessageResponse(message="Login failed.")),
     )
+
+
