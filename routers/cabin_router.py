@@ -1,20 +1,20 @@
 import datetime
 import sys
-from typing import List, Optional
+from typing import Union, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.encoders import jsonable_encoder
+from fastapi.security import HTTPBearer
 from fastapi_jwt_auth import AuthJWT
 from starlette.responses import JSONResponse
 
+from utils.db import get_db
 from models.dto_models import CabinIn
 from repository.cabins_repository import CabinsRepository
-from routers.user_router import http_bearer
-from utils.auth_user import authorize_user, User
 from utils.commons import pagination_params
-from utils.db import get_db
 
 router = APIRouter(prefix="/cabins", tags=["cabins"])
+http_bearer = HTTPBearer()
 
 
 # route order matters, wildcards should be placed last
@@ -79,11 +79,16 @@ def retrieve_cabins(
 def add_cabin(
     cabin: CabinIn,
     cabins_repo: CabinsRepository = Depends(cabins_repository),
-    user: User = Depends(authorize_user),
+    authorize: AuthJWT = Depends(),
+    token=Depends(http_bearer)
 ):
-    cabin_id = -1
+    authorize.jwt_required()
+    user_id = authorize.get_raw_jwt().get("user_id")
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
     try:
-        cabin_id = cabins_repo.add(cabin, user.user_id)  # user_id is taken from header
+        cabin_id = cabins_repo.add(cabin, user_id)  # user_id is taken from header
     except Exception:
         type, value, traceback = sys.exc_info()
         detail = value.args[0]
