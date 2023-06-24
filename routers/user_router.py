@@ -1,3 +1,5 @@
+import datetime
+
 from fastapi import APIRouter, Depends, UploadFile
 from fastapi.encoders import jsonable_encoder
 from fastapi.security import HTTPBearer
@@ -26,6 +28,7 @@ def get_current_user(authorize: AuthJWT = Depends(), token=Depends(http_bearer))
 
     current_user = authorize.get_jwt_subject()
     return {"user_email": current_user, "properties": authorize.get_raw_jwt()}
+
 
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
@@ -90,8 +93,10 @@ def login_user(
                 status_code=401,
                 content=jsonable_encoder(MessageResponse(message="Login failed.")),
             )
-        access_token = authorize.create_access_token(subject=user.email, user_claims={
-            "role": user.role
+        expires = datetime.timedelta(days=30)
+        access_token = authorize.create_access_token(subject=user.email, expires_time=expires, user_claims={
+            "role": user.role,
+            "user_id": db_user_id,
         })
         refresh_token = authorize.create_refresh_token(subject=user.email)
         return LoginResponse(access_token=access_token, refresh_token=refresh_token)

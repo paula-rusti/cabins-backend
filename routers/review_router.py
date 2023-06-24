@@ -9,7 +9,6 @@ from starlette.responses import Response
 from utils.db import get_db
 from models import orm_models, dto_models
 from repository.review_repository import ReviewRepository
-from utils.auth_user import User, authorize_user
 from utils.commons import pagination_params
 
 router = APIRouter(prefix="/reviews", tags=["reviews"])
@@ -22,14 +21,13 @@ def review_repository(db=Depends(get_db)):
 @router.post("/", status_code=status.HTTP_201_CREATED)
 def add_review(
     review: dto_models.ReviewIn,
-    user: User = Depends(authorize_user),
     repo: ReviewRepository = Depends(review_repository),
 ):
     """
     The review is associated with a booking by the booking id
     This route will be authenticated and the user id is extracted from a header for mocking demo
     """
-    inserted = repo.add_review(review=review, user_id=user.user_id)
+    inserted = repo.add_review(review=review, user_id=1)
     if not inserted:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="Review cannot be added"
