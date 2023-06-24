@@ -32,6 +32,12 @@ class UsersRepository:
             return user[0]
         return None
 
+    def get_full_name_by_id(self, id: int) -> typing.Optional[str]:
+        user = self.db.query(User).filter(User.id == id).first()
+        if user:
+            return user.full_name
+        return None
+
     def insert_user(self, user: UserRegister):
         statement = insert(User).values(
             role=user.role,

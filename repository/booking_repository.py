@@ -53,4 +53,11 @@ class BookingRepository(AbstractBookingRepository):
             .all()
         )
 
+    def get_cabin_name_by_id(self, cabin_id):
+        return (
+            self.db.query(Cabin.name)
+            .filter(Cabin.id == cabin_id)
+            .first()
+        )
+
 
