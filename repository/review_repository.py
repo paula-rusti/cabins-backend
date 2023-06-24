@@ -13,6 +13,14 @@ class ReviewRepository(AbstractReviewRepository):
         self.db = db
 
     def add_review(self, review: ReviewIn, user_id):
+        existing_review = self.db.query(orm_models.Review).filter(
+            orm_models.Review.user_id == user_id,
+            orm_models.Review.cabin_id == review.cabin_id,
+            orm_models.Review.booking_id == review.booking_id,
+        ).first()
+        if existing_review:
+            return None
+
         statement = (
             insert(Review)
             .values(

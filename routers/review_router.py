@@ -2,6 +2,8 @@ from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.encoders import jsonable_encoder
+from fastapi.security import HTTPBearer
+from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.orm import Session
 from starlette import status
 from starlette.responses import Response
@@ -12,7 +14,7 @@ from repository.review_repository import ReviewRepository
 from utils.commons import pagination_params
 
 router = APIRouter(prefix="/reviews", tags=["reviews"])
-
+http_bearer = HTTPBearer()
 
 def review_repository(db=Depends(get_db)):
     return ReviewRepository(db=db)
@@ -22,12 +24,17 @@ def review_repository(db=Depends(get_db)):
 def add_review(
     review: dto_models.ReviewIn,
     repo: ReviewRepository = Depends(review_repository),
+    token: HTTPBearer = Depends(http_bearer),
+    auth_jwt: AuthJWT = Depends(),
 ):
     """
     The review is associated with a booking by the booking id
     This route will be authenticated and the user id is extracted from a header for mocking demo
     """
-    inserted = repo.add_review(review=review, user_id=1)
+    auth_jwt.jwt_required()
+    user_id = auth_jwt.get_raw_jwt()["user_id"]
+
+    inserted = repo.add_review(review=review, user_id=user_id)
     if not inserted:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="Review cannot be added"
