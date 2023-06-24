@@ -1,16 +1,18 @@
 import datetime
 import sys
-from typing import Union, List, Optional
+from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.encoders import jsonable_encoder
+from fastapi_jwt_auth import AuthJWT
 from starlette.responses import JSONResponse
 
-from utils.db import get_db
 from models.dto_models import CabinIn
 from repository.cabins_repository import CabinsRepository
+from routers.user_router import http_bearer
 from utils.auth_user import authorize_user, User
 from utils.commons import pagination_params
+from utils.db import get_db
 
 router = APIRouter(prefix="/cabins", tags=["cabins"])
 
