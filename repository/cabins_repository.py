@@ -126,7 +126,7 @@ class CabinsRepository(AbstractCabinsRepository):
             statement = statement.bindparams(**params_dict)
             free_cabins = [row[0] for row in self.db.execute(statement).all()]
             free_and_filtered_cabins = [
-                cabin for cabin in filtered if cabin in free_cabins
+                cabin for cabin in filtered if cabin.id in free_cabins
             ]
             filtered = free_and_filtered_cabins
 
