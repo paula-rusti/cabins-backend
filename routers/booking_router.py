@@ -44,7 +44,9 @@ def add_booking(
 @router.get("/cabin/{cabin_id}")
 def get_bookings_of_cabin(
     cabin_id: int, skip: int = 0, limit: int = 100, repo: BookingRepository = Depends(bookings_repository),
-    authorize: AuthJWT = Depends(), token=Depends(http_bearer)
+    authorize: AuthJWT = Depends(), token=Depends(http_bearer),
+    repo_b: BookingRepository = Depends(bookings_repository),
+    repo_u: UsersRepository = Depends(users_repository),
 ):
     authorize.jwt_required()
     user_id = authorize.get_raw_jwt().get("user_id")
@@ -53,12 +55,15 @@ def get_bookings_of_cabin(
         raise HTTPException(status_code=401, detail="Unauthorized")
     if role != "owner":
         raise HTTPException(status_code=401, detail="User is not a owner")
-    return repo.get_bookings_of_cabin(cabin_id, skip, limit)
+    arr = repo.get_bookings_of_cabin(cabin_id, skip, limit)
+    return list(map(lambda x: process_booking(x, repo_b, repo_u), arr))
 
 @router.get("/tourist/")
 def get_bookings_of_tourist(
     skip: int = 0, limit: int = 100, repo: BookingRepository = Depends(bookings_repository),
-    authorize: AuthJWT = Depends(), token=Depends(http_bearer)
+    authorize: AuthJWT = Depends(), token=Depends(http_bearer),
+    repo_b: BookingRepository = Depends(bookings_repository),
+    repo_u: UsersRepository = Depends(users_repository),
 ):
     authorize.jwt_required()
     user_id = authorize.get_raw_jwt().get("user_id")
@@ -67,7 +72,8 @@ def get_bookings_of_tourist(
         raise HTTPException(status_code=401, detail="Unauthorized")
     if role != "tourist":
         raise HTTPException(status_code=401, detail="User is not a tourist")
-    return repo.get_bookings_of_tourist(user_id, skip, limit)
+    arr = repo.get_bookings_of_tourist(user_id, skip, limit)
+    return list(map(lambda x: process_booking(x, repo_b, repo_u), arr))
 
 @router.get("/owner")
 def get_bookings_of_owner(
