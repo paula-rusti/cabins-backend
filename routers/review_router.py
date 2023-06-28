@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from starlette import status
 from starlette.responses import Response
 
+from repository.booking_repository import BookingRepository
 from utils.db import get_db
 from models import orm_models, dto_models
 from repository.review_repository import ReviewRepository
@@ -19,11 +20,14 @@ http_bearer = HTTPBearer()
 def review_repository(db=Depends(get_db)):
     return ReviewRepository(db=db)
 
+def booking_repository(db=Depends(get_db)):
+    return BookingRepository(db=db)
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
 def add_review(
     review: dto_models.ReviewIn,
-    repo: ReviewRepository = Depends(review_repository),
+    review_repo: ReviewRepository = Depends(review_repository),
+    booking_repo: BookingRepository = Depends(booking_repository),
     token: HTTPBearer = Depends(http_bearer),
     auth_jwt: AuthJWT = Depends(),
 ):
@@ -33,8 +37,30 @@ def add_review(
     """
     auth_jwt.jwt_required()
     user_id = auth_jwt.get_raw_jwt()["user_id"]
+    role = auth_jwt.get_raw_jwt()["role"]
 
-    inserted = repo.add_review(review=review, user_id=user_id)
+    if role != "tourist":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Only tourists can add reviews",
+        )
+
+    booking_id = review.booking_id
+    booking = booking_repo.get_booking(booking_id)
+    if booking is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Booking not found, cannot add review",
+        )
+
+    if booking.user_id != user_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Booking does not belong to logged in tourist",
+        )
+
+
+    inserted = review_repo.add_review(review=review, user_id=user_id)
     if not inserted:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="Review cannot be added"
